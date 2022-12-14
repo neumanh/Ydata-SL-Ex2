@@ -3,7 +3,7 @@
 class Ols(object):
   def __init__(self):
     self.w = None
-    print('Tamp')
+    print('Tamp3')
     
   @staticmethod
   def pad(X):

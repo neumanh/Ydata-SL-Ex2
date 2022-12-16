@@ -13,11 +13,16 @@ class Ols(object):
 
     @staticmethod
     def pad(X):
+        print('----- Pad -------')
         print('X.shape', X.shape)
+        X = np.c_[X, np.ones(X.shape[0])]
+        print('X.shape', X.shape)
+        return X
 
     def fit(self, X, Y):
         # remeber pad with 1 before fitting
         # Update the weight
+        X = Ols.pad(X)
         self.w = self._derive(X, Y)
         print('------- Fit --------')
         print('self.w.shape', self.w.shape)
@@ -39,6 +44,8 @@ class Ols(object):
         print('------- Predict --------')
         print('self.w.shape', self.w.shape)
         print('X.shape', X.shape)
+        X = Ols.pad(X)
+        print('X.shape', X.shape)
         pred_y = np.dot(X, self.w)
         print('pred_y.shape:', pred_y.shape)
         return pred_y
@@ -48,16 +55,18 @@ class Ols(object):
         pass
 
     def score(self, X, Y):
-        # return MSE
-        pass
+        pred_y = self.predict(X)
+        mse = np.mean((pred_y - Y)**2)
+        return mse
 
 
 # TESTING
-n, k = 10, 2
+n, k = 100000, 2
 # set the dimensions of the design matrix
 beta = np.array([1, 1, 10])  # set the true coefficients
 x = np.concatenate([np.ones((n, 1)), np.random.randn(n, k)], axis=1)  # generate random x
 y = np.matmul(x, beta) + np.random.randn(n)  # generate random y
+
 print('Inputs:')
 print('x:', x.shape)
 print('y:', y.shape)
@@ -66,8 +75,13 @@ ols_obj = Ols()
 ols_obj.fit(x, y)
 
 
-print(ols_obj.predict(x))
-print('true y:\n', y)
+predicted_y = ols_obj.predict(x)
+#print('Pred y:\n', predicted_y)
+#print('true y:\n', y)
+#print('True Y - Pred Y:\n', y-predicted_y)
+
+omse = ols_obj.score(x, y)
+print('MSE:', omse)
 
 
 # Write a new class OlsGd which solves the problem using gradinet descent. The class should get as a parameter the

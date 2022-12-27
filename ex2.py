@@ -46,8 +46,8 @@ class Ols(object):
         return mse
 
 
-# Write a new class OlsGd which solves the problem using gradinet descent. The class should get as a parameter the
-# learning rate and number of iteration. Plot the loss convergance. for each alpha, learning rate plot the MSE with
+# Write a new class OlsGd which solves the problem using gradient descent. The class should get as a parameter the
+# learning rate and number of iteration. Plot the loss convergence. for each alpha, learning rate plot the MSE with
 # respect to number of iterations. What is the effect of learning rate? How would you find number of iteration
 # automatically? Note: Gradient Descent does not work well when features are not scaled evenly (why?!). Be sure to
 # normalize your feature first.
@@ -69,7 +69,6 @@ class Normalizer:
 
 
 class OlsGd(Ols):
-
     def __init__(self, learning_rate=.05,
                  num_iteration=1000,
                  normalize=True,
@@ -83,6 +82,7 @@ class OlsGd(Ols):
         self.normalize = normalize
         self.normalizer = Normalizer()
         self.verbose = verbose
+        self.loss_history = None
 
     def _fit(self, X, Y, reset=True, track_loss=True):
         # remember to normalize the data before starting
@@ -94,12 +94,14 @@ class OlsGd(Ols):
         self.w = np.random.randint(100, size=pad_X.shape[1])  # Random initial weights
         w0 = np.random.randint(100, size=pad_X.shape[1])  # Random initial weights
         i = 0
+        self.loss_history = []
         while not self._should_stop_func(i, w0):
             w0 = self.w  # The previous step w, for early stop
             self._step(pad_X, Y)
             i += 1
+            loss = self.score(X0, Y)  # Computing the loss
+            self.loss_history.append(loss)
             if self.verbose:
-                loss = self.score(X0, Y)  # Computing the loss
                 print(f'Iteration {i} error: {loss}')
         if self.verbose:
             print(f'Final step: iteration: {i} Error: {self.score(X0, Y)}')
@@ -125,7 +127,7 @@ class OlsGd(Ols):
         self.w = self.w - np.dot(self.learning_rate, grad_x)
 
     def _should_stop_func(self, current_step, w0, delta=0.001):
-        """Returns true if the function should stop"""
+        """Returns true if the functin shpuld stop"""
         should_stop = False
         if current_step >= self.num_iteration:
             should_stop = True

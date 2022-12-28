@@ -69,6 +69,7 @@ class Normalizer:
 
 
 class OlsGd(Ols):
+
     def __init__(self, learning_rate=.05,
                  num_iteration=1000,
                  normalize=True,
@@ -85,24 +86,25 @@ class OlsGd(Ols):
         self.loss_history = None
 
     def _fit(self, X, Y, reset=True, track_loss=True):
-        # remember to normalize the data before starting
+        # remeber to normalize the data before starting
         X0 = X  # Saving the original X
         if self.normalize:
             self.normalizer.fit(X)
             X = self.normalizer.predict(X)
         pad_X = self.pad(X)
-        self.w = np.random.randint(100, size=pad_X.shape[1])  # Random initial weights
-        w0 = np.random.randint(100, size=pad_X.shape[1])  # Random initial weights
+        self.w = np.random.rand(pad_X.shape[1])  # Random initial weights
+        w0 = np.ones(pad_X.shape[1])  # Initial weights of 1 - represents the last step
         i = 0
         self.loss_history = []
         while not self._should_stop_func(i, w0):
             w0 = self.w  # The previous step w, for early stop
             self._step(pad_X, Y)
-            i += 1
             loss = self.score(X0, Y)  # Computing the loss
-            self.loss_history.append(loss)
-            if self.verbose:
+            if track_loss:
+                self.loss_history.append(loss)
+            if self.verbose and ((i % 10) == 0):  # Print the 10th iteration
                 print(f'Iteration {i} error: {loss}')
+            i += 1
         if self.verbose:
             print(f'Final step: iteration: {i} Error: {self.score(X0, Y)}')
         return self.w
@@ -116,7 +118,6 @@ class OlsGd(Ols):
     def _predict(self, X):
         if self.normalize:
             X = self.normalizer.predict(X)
-        # pred_y = np.dot(X, self.w)
         pred_y = super()._predict(X)
 
         return pred_y
